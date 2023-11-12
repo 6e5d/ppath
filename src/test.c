@@ -2,7 +2,7 @@
 
 #include "../include/ppath.h"
 
-int main() {
+int main(void) {
 	char a[] = "/../foo/bar///.././baz.txt";
 	printf("before: %s\n", a);
 	ppath_normalize(a);
