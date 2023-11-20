@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "../include/ppath.h"
 
@@ -66,11 +67,29 @@ size_t ppath_normalize(char* path) {
 	return i;
 }
 
-char* ppath_rel_new(char* abs, char* rel) {
-	char* result = malloc(strlen(abs) + strlen(rel) + 2);
-	strcpy(result, abs);
-	strcat(result, "/");
-	strcat(result, rel);
-	ppath_normalize(result);
+void ppath_rel(char **result, char *abs, char *rel) {
+	size_t len = strlen(abs) + strlen(rel) + 2;
+	*result = realloc(*result, len);
+	memset(*result, 0, len);
+	strcpy(*result, abs);
+	strcat(*result, "/");
+	strcat(*result, rel);
+	ppath_normalize(*result);
+}
+
+char *ppath_rel_new(char *abs, char *rel) {
+	char* result = NULL;
+	ppath_rel(&result, abs, rel);
+	return result;
+}
+
+char *ppath_abs(char *rel) {
+	if (*rel == '/') {
+		return strdup(rel);
+	}
+	char *cwd = malloc(4096);
+	assert(NULL != getcwd(cwd, 4096));
+	char *result = ppath_rel_new(cwd, rel);
+	free(cwd);
 	return result;
 }
