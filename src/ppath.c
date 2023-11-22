@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -21,7 +22,6 @@ size_t ppath_normalize(char* path) {
 		} else if (path[i] != '/') {
 			continue;
 		}
-		// printf("%zu %zu %zu %s\n", i, j, prev_pos, path);
 		if (
 			(i == prev_pos) ||
 			((i == prev_pos + 1) && path[prev_pos] == '.')
@@ -50,10 +50,8 @@ size_t ppath_normalize(char* path) {
 				j += 1;
 				prev_pos += 1;
 			}
-			if (!last) {
-				path[j] = '/';
-				j += 1;
-			}
+			path[j] = '/';
+			j += 1;
 		} else {
 			// new and old paths are still aligned
 			j = i + 1;
@@ -63,23 +61,24 @@ size_t ppath_normalize(char* path) {
 			break;
 		}
 	}
-	path[j] = '\0';
+	// j always points to next position after slash
+	// but if lenth is 1 we have to add a slash
+	if (j >= 2) {
+		path[j - 1] = '\0';
+	} else {
+		path[1] = '\0';
+	}
 	return i;
 }
 
-void ppath_rel(char **result, char *abs, char *rel) {
-	size_t len = strlen(abs) + strlen(rel) + 2;
-	*result = realloc(*result, len);
-	memset(*result, 0, len);
-	strcpy(*result, abs);
-	strcat(*result, "/");
-	strcat(*result, rel);
-	ppath_normalize(*result);
-}
-
-char *ppath_rel_new(char *abs, char *rel) {
-	char* result = NULL;
-	ppath_rel(&result, abs, rel);
+char* ppath_rel(char *abs, char *rel) {
+	size_t len1 = strlen(abs);
+	size_t len2 = strlen(rel);
+	char *result = malloc(len1 + len2 + 2);
+	strcpy(result, abs);
+	*(result + len1) = '/';
+	strcpy(result + len1 + 1, rel);
+	ppath_normalize(result);
 	return result;
 }
 
@@ -89,7 +88,7 @@ char *ppath_abs(char *rel) {
 	}
 	char *cwd = malloc(4096);
 	assert(NULL != getcwd(cwd, 4096));
-	char *result = ppath_rel_new(cwd, rel);
+	char *result = ppath_rel(cwd, rel);
 	free(cwd);
 	return result;
 }
