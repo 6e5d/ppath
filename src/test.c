@@ -30,7 +30,7 @@ int main(void) {
 	printf("after: %s\n", d);
 	assert(0 == strcmp(d, "/foo"));
 
-	char *rel = ppath_abs("foo/bar/baz.tzt");
+	char *rel = ppath_abs_new("foo/bar/baz.tzt");
 	printf("before: %s\n", rel);
 	ppath_normalize(rel);
 	printf("after: %s\n", rel);

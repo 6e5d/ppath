@@ -71,24 +71,31 @@ size_t ppath_normalize(char* path) {
 	return i;
 }
 
-char* ppath_rel(char *abs, char *rel) {
+void ppath_rel(char **result, char *abs, char *rel) {
 	size_t len1 = strlen(abs);
 	size_t len2 = strlen(rel);
-	char *result = malloc(len1 + len2 + 2);
-	strcpy(result, abs);
-	*(result + len1) = '/';
-	strcpy(result + len1 + 1, rel);
-	ppath_normalize(result);
+	*result = realloc(*result, len1 + len2 + 2);
+	char *p = *result;
+	assert(p != NULL);
+	strcpy(p, abs);
+	*(p + len1) = '/';
+	strcpy(p + len1 + 1, rel);
+	ppath_normalize(p);
+}
+
+char* ppath_rel_new(char *abs, char *rel) {
+	char *result = NULL;
+	ppath_rel(&result, abs, rel);
 	return result;
 }
 
-char *ppath_abs(char *rel) {
+char *ppath_abs_new(char *rel) {
 	if (*rel == '/') {
 		return strdup(rel);
 	}
 	char *cwd = malloc(4096);
 	assert(NULL != getcwd(cwd, 4096));
-	char *result = ppath_rel(cwd, rel);
+	char *result = ppath_rel_new(cwd, rel);
 	free(cwd);
 	return result;
 }
