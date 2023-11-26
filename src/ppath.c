@@ -91,7 +91,9 @@ char* ppath_rel_new(char *abs, char *rel) {
 
 char *ppath_abs_new(char *rel) {
 	if (*rel == '/') {
-		return strdup(rel);
+		char *new = malloc(strlen(rel) + 1);
+		strcpy(new, rel);
+		return new;
 	}
 	char *cwd = malloc(4096);
 	assert(NULL != getcwd(cwd, 4096));
