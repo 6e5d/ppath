@@ -1,7 +1,5 @@
-#ifndef INCLUDEGUARD_PPATH_PPATHH
-#define INCLUDEGUARD_PPATH_PPATHH
-
-#include <stddef.h>
+#ifndef INCLUDEGUARD_PPATH
+#define INCLUDEGUARD_PPATH
 
 size_t ppath_normalize(char* path);
 void ppath_rel(char **result, char *abs, char *rel);
