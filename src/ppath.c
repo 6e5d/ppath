@@ -1,6 +1,6 @@
 #include <unistd.h>
-
 #include "../include/ppath.h"
+#define NS_NAME(symbol) com_6e5d_ppath_##symbol
 
 static size_t parent_dir_idx(char *path, size_t j) {
 	// skip the slash
@@ -20,7 +20,7 @@ static size_t parent_dir_idx(char *path, size_t j) {
 
 // normalize an absolute path will never increase its length,
 // so we just over write the char*, return the new string length
-size_t ppath_normalize(char *path) {
+size_t NS_NAME(normalize)(char *path) {
 	assert(*path == '/');
 	size_t prev_pos = 1;
 	size_t i = 0;
@@ -72,7 +72,7 @@ size_t ppath_normalize(char *path) {
 	return i;
 }
 
-void ppath_rel(char **result, char *abs, char *rel) {
+void NS_NAME(rel)(char **result, char *abs, char *rel) {
 	size_t len1 = strlen(abs);
 	size_t len2 = strlen(rel);
 	*result = realloc(*result, len1 + len2 + 2);
@@ -81,16 +81,16 @@ void ppath_rel(char **result, char *abs, char *rel) {
 	strcpy(p, abs);
 	*(p + len1) = '/';
 	strcpy(p + len1 + 1, rel);
-	ppath_normalize(p);
+	NS_NAME(normalize)(p);
 }
 
-char* ppath_rel_new(char *abs, char *rel) {
+char *NS_NAME(rel_new)(char *abs, char *rel) {
 	char *result = NULL;
-	ppath_rel(&result, abs, rel);
+	NS_NAME(rel)(&result, abs, rel);
 	return result;
 }
 
-char *ppath_abs_new(char *rel) {
+char *NS_NAME(abs_new)(char *rel) {
 	if (*rel == '/') {
 		char *new = malloc(strlen(rel) + 1);
 		strcpy(new, rel);
@@ -98,7 +98,7 @@ char *ppath_abs_new(char *rel) {
 	}
 	char *cwd = malloc(4096);
 	assert(NULL != getcwd(cwd, 4096));
-	char *result = ppath_rel_new(cwd, rel);
+	char *result = NS_NAME(rel_new)(cwd, rel);
 	free(cwd);
 	return result;
 }
