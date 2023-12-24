@@ -2,14 +2,30 @@
 
 #include "../include/ppath.h"
 
+static size_t parent_dir_idx(char *path, size_t j) {
+	// skip the slash
+	j -= 2;
+	// goto next slash
+	for (;;j -= 1) {
+		if (path[j] == '/') {
+			j += 1;
+			break;
+		}
+		if (j == 1) {
+			break;
+		}
+	}
+	return j;
+}
+
 // normalize an absolute path will never increase its length,
 // so we just over write the char*, return the new string length
-size_t ppath_normalize(char* path) {
+size_t ppath_normalize(char *path) {
 	assert(*path == '/');
 	size_t prev_pos = 1;
-	size_t i = 1;
-	size_t j = 1;
-	for (;; i += 1) {
+	size_t i = 0;
+	size_t j = 0;
+	for (;;i += 1) {
 		bool last = false;
 		if (path[i] == 0) {
 			last = true;
@@ -26,16 +42,7 @@ size_t ppath_normalize(char* path) {
 		) {
 			// go parent
 			if (j >= 3) {
-				j -= 2;
-				for (;; j -= 1) {
-					if (path[j] == '/') {
-						j += 1;
-						break;
-					}
-					if (j == 1) {
-						break;
-					}
-				}
+				j = parent_dir_idx(path, j);
 			}
 		} else if (prev_pos > j) {
 			// do copy
